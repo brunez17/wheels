@@ -36,6 +36,14 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
+# iOS (generar con npx expo prebuild si hace falta)
 /ios
-/android
+
+# Android — versionar el proyecto; ignorar artefactos de build
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml

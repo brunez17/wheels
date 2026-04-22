@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "162127826579",
+    "project_id": "franchu-wheels",
+    "storage_bucket": "franchu-wheels.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162127826579:android:bfc8388f29b0f8cfa78766",
+        "android_client_info": {
+          "package_name": "com.franchu.wheels"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "162127826579-4mmrqt5iu02fht71bdndso8icmqm80l6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.franchu.wheels",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "162127826579-6lt1fikhj4t0s8ghidt2gnvr4cqh0qek.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAclsVo_CVG8W-2_ceCL2teOodZCCGytqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "162127826579-6lt1fikhj4t0s8ghidt2gnvr4cqh0qek.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

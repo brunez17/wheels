@@ -21,10 +21,36 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.franchu.wheels"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Wheels necesita acceso a tus fotos para adjuntar imágenes a los modelos."
+        }
+      ],
+      "@react-native-google-signin/google-signin"
+    ],
+    "extra": {
+      "googleWebClientId": "162127826579-6lt1fikhj4t0s8ghidt2gnvr4cqh0qek.apps.googleusercontent.com",
+      "firebase": {
+        "apiKey": "AIzaSyAclsVo_CVG8W-2_ceCL2teOodZCCGytqc",
+        "authDomain": "franchu-wheels.firebaseapp.com",
+        "projectId": "franchu-wheels",
+        "storageBucket": "franchu-wheels.firebasestorage.app",
+        "messagingSenderId": "162127826579",
+        "appId": "1:162127826579:android:bfc8388f29b0f8cfa78766"
+      }
     }
   }
 }
