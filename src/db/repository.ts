@@ -4,7 +4,8 @@ import {
   documentDirectory,
   makeDirectoryAsync,
 } from 'expo-file-system/legacy';
-import type { Brand, CarDetail, CarImageRow, CarListItem } from '../types/models';
+import type { Brand, CarDetail, CarImageRow, CarListItem, TournamentCar } from '../types/models';
+import { compressImageIfNeeded } from '../utils/imageCompress';
 import { getDatabase } from './database';
 
 const IMAGES_DIR = `${documentDirectory}car_images/`;
@@ -78,6 +79,7 @@ export async function listCars(brandId: number): Promise<CarListItem[]> {
     `SELECT c.id AS id, c.brand_id AS brandId, c.name AS name, c.series AS series,
             c.year AS year, c.quantity AS quantity,
             c.primary_color AS primaryColor, c.secondary_color AS secondaryColor,
+            COALESCE(c.tournament_wins, 0) AS tournamentWins,
             (SELECT local_uri FROM car_images WHERE car_id = c.id
              ORDER BY sort_order ASC, id ASC LIMIT 1) AS thumbUri
      FROM cars c
@@ -85,6 +87,39 @@ export async function listCars(brandId: number): Promise<CarListItem[]> {
      ORDER BY c.name COLLATE NOCASE ASC, c.series COLLATE NOCASE ASC`,
     [brandId]
   );
+}
+
+/** Todos los autos del inventario (una entrada por registro) para el torneo. */
+export async function listAllCars(): Promise<TournamentCar[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<TournamentCar>(
+    `SELECT c.id AS id, c.brand_id AS brandId, b.name AS brandName,
+            c.name AS name, c.series AS series, c.year AS year, c.quantity AS quantity,
+            c.primary_color AS primaryColor, c.secondary_color AS secondaryColor,
+            COALESCE(c.tournament_wins, 0) AS tournamentWins,
+            (SELECT local_uri FROM car_images WHERE car_id = c.id
+             ORDER BY sort_order ASC, id ASC LIMIT 1) AS thumbUri
+     FROM cars c
+     JOIN brands b ON b.id = c.brand_id
+     ORDER BY c.id ASC`
+  );
+}
+
+/** Suma una copa al campeón del torneo. */
+export async function recordTournamentWin(carId: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE cars SET tournament_wins = COALESCE(tournament_wins, 0) + 1 WHERE id = ?',
+    [carId]
+  );
+}
+
+export async function setTournamentWins(carId: number, wins: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE cars SET tournament_wins = ? WHERE id = ?', [
+    Math.max(0, Math.floor(wins)),
+    carId,
+  ]);
 }
 
 export async function getCar(id: number): Promise<CarDetail | null> {
@@ -193,10 +228,11 @@ export async function deleteCar(id: number): Promise<void> {
 
 export async function persistPickedImage(carId: number, sourceUri: string): Promise<string> {
   await ensureImagesDir();
-  const extMatch = sourceUri.split('.').pop()?.split('?')[0];
-  const ext = extMatch && extMatch.length <= 5 ? extMatch : 'jpg';
+  const { uri: readyUri, compressed } = await compressImageIfNeeded(sourceUri);
+  const extMatch = readyUri.split('.').pop()?.split('?')[0];
+  const ext = compressed ? 'jpg' : extMatch && extMatch.length <= 5 ? extMatch : 'jpg';
   const dest = `${IMAGES_DIR}car_${carId}_${Date.now()}.${ext}`;
-  await copyAsync({ from: sourceUri, to: dest });
+  await copyAsync({ from: readyUri, to: dest });
   return dest;
 }
 
@@ -233,6 +269,7 @@ export type CarRow = {
   quantity: number;
   primaryColor: string;
   secondaryColor: string | null;
+  tournamentWins: number;
 };
 
 /** Snapshot completo para respaldo en la nube. */
@@ -245,7 +282,8 @@ export async function exportDatabaseSnapshot(): Promise<{
   const brands = await db.getAllAsync<BrandRow>('SELECT id, name FROM brands ORDER BY id ASC');
   const cars = await db.getAllAsync<CarRow>(
     `SELECT id, brand_id AS brandId, name, series, year, quantity,
-            primary_color AS primaryColor, secondary_color AS secondaryColor
+            primary_color AS primaryColor, secondary_color AS secondaryColor,
+            COALESCE(tournament_wins, 0) AS tournamentWins
      FROM cars ORDER BY id ASC`
   );
   const images = await db.getAllAsync<CarImageRow>(

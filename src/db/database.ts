@@ -2,6 +2,17 @@ import * as SQLite from 'expo-sqlite';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 
+async function ensureColumn(
+  db: SQLite.SQLiteDatabase,
+  table: string,
+  column: string,
+  definition: string
+): Promise<void> {
+  const cols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+  if (cols.some((c) => c.name === column)) return;
+  await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
+
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (dbInstance) return dbInstance;
   const db = await SQLite.openDatabaseAsync('wheels.db');
@@ -19,7 +30,8 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
       year INTEGER NOT NULL,
       quantity INTEGER NOT NULL DEFAULT 1,
       primary_color TEXT NOT NULL,
-      secondary_color TEXT
+      secondary_color TEXT,
+      tournament_wins INTEGER NOT NULL DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS car_images (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,6 +42,7 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
     CREATE INDEX IF NOT EXISTS idx_cars_brand ON cars(brand_id);
     CREATE INDEX IF NOT EXISTS idx_car_images_car ON car_images(car_id);
   `);
+  await ensureColumn(db, 'cars', 'tournament_wins', 'INTEGER NOT NULL DEFAULT 0');
   dbInstance = db;
   return db;
 }

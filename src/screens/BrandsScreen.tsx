@@ -70,7 +70,9 @@ export function BrandsScreen({ navigation }: BrandsScreenProps) {
       <FlatList
         data={rows}
         keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={rows.length === 0 ? styles.emptyList : undefined}
+        contentContainerStyle={
+          rows.length === 0 ? styles.emptyList : { paddingBottom: 100 }
+        }
         ListEmptyComponent={<Text style={styles.emptyText}>No hay marcas. Agregá la primera.</Text>}
         renderItem={({ item }) => (
           <Pressable
@@ -105,6 +107,9 @@ export function BrandsScreen({ navigation }: BrandsScreenProps) {
           </Pressable>
         )}
       />
+      <Pressable style={styles.fabLeft} onPress={() => navigation.navigate('Tournament')}>
+        <Text style={styles.fabText}>Torneo</Text>
+      </Pressable>
       <Pressable style={styles.fab} onPress={() => navigation.navigate('BrandForm', {})}>
         <Text style={styles.fabText}>+ Marca</Text>
       </Pressable>
@@ -142,6 +147,16 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
+    bottom: 24,
+    backgroundColor: '#111827',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 28,
+    elevation: 4,
+  },
+  fabLeft: {
+    position: 'absolute',
+    left: 20,
     bottom: 24,
     backgroundColor: '#111827',
     paddingVertical: 14,

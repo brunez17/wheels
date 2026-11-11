@@ -14,6 +14,12 @@ export type CarListItem = {
   primaryColor: string;
   secondaryColor: string | null;
   thumbUri: string | null;
+  /** Torneos ganados (copas). */
+  tournamentWins: number;
+};
+
+export type TournamentCar = CarListItem & {
+  brandName: string;
 };
 
 export type CarDetail = {

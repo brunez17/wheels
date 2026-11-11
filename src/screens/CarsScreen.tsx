@@ -96,6 +96,11 @@ export function CarsScreen({ navigation, route }: CarsScreenProps) {
                   <Text style={styles.thumbPhText}>Sin foto</Text>
                 </View>
               )}
+              {item.tournamentWins > 0 ? (
+                <View style={styles.cupsBadge}>
+                  <Text style={styles.cupsText}>🏆 {item.tournamentWins}</Text>
+                </View>
+              ) : null}
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}
@@ -174,6 +179,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   thumbPhText: { fontSize: 11, color: '#9ca3af' },
+  cupsBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    backgroundColor: '#f59e0b',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    minWidth: 28,
+    alignItems: 'center',
+  },
+  cupsText: { fontSize: 11, fontWeight: '800', color: '#111827' },
   cardBody: { flex: 1, justifyContent: 'center' },
   carName: { fontSize: 17, fontWeight: '600', color: '#111' },
   meta: { marginTop: 2, fontSize: 14, color: '#6b7280' },

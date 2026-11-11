@@ -5,6 +5,7 @@ import { BrandFormScreen } from '../screens/BrandFormScreen';
 import { CarsScreen } from '../screens/CarsScreen';
 import { CarEditScreen } from '../screens/CarEditScreen';
 import { CloudBackupScreen } from '../screens/CloudBackupScreen';
+import { TournamentScreen } from '../screens/TournamentScreen';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -48,6 +49,7 @@ export function RootNavigator() {
           })}
         />
         <Stack.Screen name="CloudBackup" component={CloudBackupScreen} options={{ title: 'Respaldo' }} />
+        <Stack.Screen name="Tournament" component={TournamentScreen} options={{ title: 'Torneo' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

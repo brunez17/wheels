@@ -25,8 +25,8 @@ import * as Repo from '../db/repository';
 const DOC_ID = 'v1';
 /** 2 = imágenes en Firestore (sin Firebase Storage). 1 = legado con URLs de Storage. */
 const SCHEMA_VERSION = 2;
-/** Tamaño máx. aprox. del string base64 por documento (Firestore ~1 MiB por doc). */
-const MAX_B64_CHARS = 900_000;
+/** Tamaño máx. aprox. del string base64 por documento (~1000 KB de imagen). */
+const MAX_B64_CHARS = Math.ceil((1000 * 1024 * 4) / 3);
 
 const BACKUP_COLLECTION = 'wheelsBackup';
 const IMAGES_SUBCOLLECTION = 'wheelImages';
@@ -39,6 +39,8 @@ export type CloudCarPayloadV2 = {
   quantity: number;
   primaryColor: string;
   secondaryColor: string | null;
+  /** Torneos ganados (opcional en respaldos viejos). */
+  tournamentWins?: number;
   /** IDs de documentos en `users/{uid}/wheelImages/{id}` */
   imageDocIds: string[];
 };
@@ -103,7 +105,7 @@ async function uploadImageDoc(uid: string, localUri: string): Promise<string> {
     const b64 = await readAsStringAsync(localUri, { encoding: 'base64' });
     if (b64.length > MAX_B64_CHARS) {
       throw new Error(
-        'Hay una foto demasiado grande para el respaldo sin Storage (límite ~700 KB por imagen). Comprimila o eliminála e intentá de nuevo.'
+        'Hay una foto demasiado grande para el respaldo sin Storage (límite ~1000 KB por imagen). Comprimila o eliminála e intentá de nuevo.'
       );
     }
     const ref = await addDoc(wheelImagesCollection(uid), {
@@ -238,6 +240,7 @@ export async function uploadInventoryBackup(): Promise<{ updatedAtMs: number }> 
       quantity: car.quantity,
       primaryColor: car.primaryColor,
       secondaryColor: car.secondaryColor,
+      tournamentWins: car.tournamentWins ?? 0,
       imageDocIds,
     });
   }
@@ -356,6 +359,11 @@ export async function downloadInventoryBackup(): Promise<{ updatedAtMs: number }
       c.primaryColor,
       c.secondaryColor ?? null
     );
+    const wins =
+      typeof (c as CloudCarPayloadV2).tournamentWins === 'number'
+        ? (c as CloudCarPayloadV2).tournamentWins!
+        : 0;
+    if (wins > 0) await Repo.setTournamentWins(carId, wins);
     await restoreCarImages(uid, carId, c as LegacyCarWithUrls);
   }
 
